@@ -98,7 +98,7 @@ namespace Linq2Datatable
             if (columns[name].DataType != typeof(T)) throw new ArgumentException("T");
             IList<T> pList = new List<T>();
             for (int i = 0; i < table.Rows.Count; i++) {
-                if (predicate((T)table.Rows[0][name])) {
+                if (predicate((T)table.Rows[i][name])) {
                     pList.Add((T)table.Rows[i][name]);
                 }
             }
