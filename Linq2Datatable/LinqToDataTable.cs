@@ -62,6 +62,27 @@ namespace Linq2Datatable
             return pList;
         }
         /// <summary>
+        /// 获取DataTable中某个字段符合给定条件的处理过的集合
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="name">字段名称</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Select<T>(this DataTable table, string name, Func<T, T> selector)
+        {
+            if (table == null) throw new ArgumentNullException("table");
+            DataColumnCollection columns = table.Columns;
+            if (!columns.Contains(name)) throw new ArgumentException("invalid field name");
+            if (columns[name].DataType != typeof(T)) throw new ArgumentException("T");
+            IList<T> pList = new List<T>();
+            for (int i = 0; i < table.Rows.Count; i++) {
+                pList.Add(selector((T)table.Rows[i][name]));
+            }
+            return pList;
+        }
+
+        /// <summary>
         /// 获取DataTable中某个字段符合给定条件的集合
         /// </summary>
         /// <typeparam name="T">T</typeparam>
@@ -86,9 +107,9 @@ namespace Linq2Datatable
         /// <summary>
         /// 计算table中某个字段的合计
         /// </summary>
-        /// <param name="table"></param>
-        /// <param name="selector"></param>
-        /// <returns></returns>
+        /// <param name="table">DataTable</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns>int</returns>
         public static int Sum(this DataTable table, Func<int, string> selector)
         {
             if (table == null) throw new ArgumentNullException("table");
@@ -101,9 +122,9 @@ namespace Linq2Datatable
         /// <summary>
         /// 计算DataTable中某个字段的合计
         /// </summary>
-        /// <param name="table"></param>
-        /// <param name="selector"></param>
-        /// <returns></returns>
+        /// <param name="table">DataTable</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns>double</returns>
         public static double Sum(this DataTable table, Func<double, string> selector)
         {
             if (table == null) throw new ArgumentNullException("table");
@@ -113,7 +134,12 @@ namespace Linq2Datatable
             if (columns[name].DataType != typeof(double)) throw new ArgumentException("double");
             return table.Select<double>(name).Sum();
         }
-
+        /// <summary>
+        /// 计算DataTable中某个字段的所有记录合计
+        /// </summary>
+        /// <param name="table">DataTable</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns>decimal</returns>
         public static decimal Sum(this DataTable table, Func<decimal, string> selector)
         {
             if (table == null) throw new ArgumentNullException("table");
@@ -123,9 +149,6 @@ namespace Linq2Datatable
             if (columns[name].DataType != typeof(decimal)) throw new ArgumentException("decimal");
             return table.Select<decimal>(name).Sum();
         }
-
-
-
         /// <summary>
         /// 判断给定DataTable中是否存在某个字段值符合给定条件的记录
         /// </summary>
@@ -298,37 +321,6 @@ namespace Linq2Datatable
             }
             return flag;
         }
-
-
-
-        public static DataTable Take(this DataTable table, int count)
-        {
-            if (table == null) throw new ArgumentNullException("table");
-            if (count <= 0) throw new InvalidExpressionException("Not a valid number");
-            DataTable _table = new DataTable(table.TableName);
-            for (int i = 0; i < table.Columns.Count; i++) {
-                _table.Columns.Add(table.Columns[i].ColumnName, table.Columns[i].DataType);
-            }
-            if (count > table.Rows.Count) {
-                for (int i = 0; i < table.Rows.Count; i++) {
-                    DataRow newRow = _table.NewRow();
-                    for (int j = 0; j < _table.Columns.Count; j++) {
-                        newRow[_table.Columns[j]] = table.Rows[i][_table.Columns[j].ColumnName];
-                    }
-                    _table.Rows.Add(newRow);
-                }
-            }
-            else {
-                for (int i = 0; i < count; i++) {
-                    DataRow newRow = _table.NewRow();
-                    for (int j = 0; j < _table.Columns.Count; j++) {
-                        newRow[_table.Columns[j]] = table.Rows[i][_table.Columns[j].ColumnName];
-                    }
-                    _table.Rows.Add(newRow);
-                }
-            }
-            return _table;
-        }
         /// <summary>
         /// 某个字段的最大值
         /// </summary>
@@ -353,7 +345,13 @@ namespace Linq2Datatable
             }
             return value;
         }
-
+        /// <summary>
+        /// DataTable中某个字段的最小值
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns>T</returns>
         public static T Min<T>(this DataTable table, Func<string> selector)
         {
             if (table == null) throw new ArgumentNullException("table");
@@ -371,7 +369,13 @@ namespace Linq2Datatable
             }
             return value;
         }
-
+        /// <summary>
+        /// DataTable中某个字段具有最大值的记录
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="collection">DataRowCollection</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns></returns>
         public static DataRow Max<T>(this DataRowCollection collection, Func<string> selector)
         {
             if (collection == null) throw new ArgumentNullException("table");
@@ -392,7 +396,13 @@ namespace Linq2Datatable
             }
             return result;
         }
-
+        /// <summary>
+        /// DataTable中某个字段具有最小值的记录
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="collection">DataRowCollection</param>
+        /// <param name="selector">Func委托</param>
+        /// <returns></returns>
         public static DataRow Min<T>(this DataRowCollection collection, Func<string> selector)
         {
             if (collection == null) throw new ArgumentNullException("table");
