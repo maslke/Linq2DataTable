@@ -8,6 +8,15 @@ namespace Linq2Datatable
 {
     public static class QuickSort
     {
+        /// <summary>
+        /// 快速排序
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="name"></param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="descending">是否按照降序排序</param>
         public static void Sort<T>(DataTable table,string name, int left, int right,bool descending=false) where T : IComparable<T>
         {
             if (left < right) {
@@ -21,6 +30,15 @@ namespace Linq2Datatable
             }
         }
 
+        /// <summary>
+        /// 降序排序快速排序分区
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="name">字段名称</param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         private static int Partion2<T>(DataTable table, string name, int left, int right) where T : IComparable<T>
         {
             int i = left, j = right + 1;
@@ -42,6 +60,15 @@ namespace Linq2Datatable
             return j;
         }
 
+        /// <summary>
+        /// 升序排序快速排序分区
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="name">字段名称</param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         private static int Partion<T>(DataTable table,string name, int left, int right) where T : IComparable<T>
         {
             int i = left, j = right+1;
@@ -63,6 +90,12 @@ namespace Linq2Datatable
             return j;
         }
 
+        /// <summary>
+        /// 交换Datatable中的两行
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
         private static void Swap(DataTable table, int i,int j)
         {
             DataRow newRow = table.NewRow();

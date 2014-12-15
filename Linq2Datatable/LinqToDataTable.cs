@@ -423,7 +423,13 @@ namespace Linq2Datatable
             }
             return result;
         }
-
+        /// <summary>
+        /// 根据某个字段升序排序DataTable中的记录
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="name">字段名称</param>
+        /// <returns>DataTable</returns>
         public static DataTable OrderBy<T>(this DataTable table, string name) where T:IComparable<T>{
             if (table == null) throw new ArgumentException("table");
             DataColumnCollection columns = table.Columns;
@@ -432,7 +438,13 @@ namespace Linq2Datatable
             QuickSort.Sort<T>(table, name, 0, table.Rows.Count-1);
             return table;
         }
-
+        /// <summary>
+        /// 根据某个字段降序排序DataTable中的记录
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="table">DataTable</param>
+        /// <param name="name">字段名称</param>
+        /// <returns>DataTable</returns>
         public static DataTable OrderByDescending<T>(this DataTable table, string name) where T : IComparable<T>
         {
             if (table == null) throw new ArgumentException("table");
@@ -441,6 +453,71 @@ namespace Linq2Datatable
             if (columns[name].DataType != typeof(T)) throw new ArgumentException("T");
             QuickSort.Sort<T>(table, name, 0, table.Rows.Count - 1,true);
             return table;
+        }
+        /// <summary>
+        /// 对于某个字段，返回值在本datatable中和其它datatable中都存在的记录组成的datatble
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="table2"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static DataTable Intersect<T>(this DataTable table, DataTable table2, string name)
+        {
+            if (table == null) throw new ArgumentNullException("table");
+            DataColumnCollection columns = table.Columns;
+            if (!columns.Contains(name)) throw new ArgumentException("invalid field name");
+            if (table.Columns[name].DataType != typeof(T)) throw new ArgumentException("T");
+            if (!table2.Columns.Contains(name)) throw new ArgumentException("invalid field name");
+            DataTable _table = new DataTable(table.TableName);
+            for (int i = 0; i < table.Columns.Count; i++) {
+                _table.Columns.Add(table.Columns[i].ColumnName, table.Columns[i].DataType);
+            }
+
+            for (int i = 0; i < table.Rows.Count; i++) {
+                DataRow current = table.Rows[i];
+                if (table2.Select<T>(name).Contains((T)current[name])) {
+                    DataRow newRow = _table.NewRow();
+                    for (int index = 0; index < table.Columns.Count; index++) {
+                        newRow[index] = table.Rows[i][index];
+                    }
+                    _table.Rows.Add(newRow);
+                }
+            }
+            return _table;
+        }
+
+        /// <summary>
+        /// 对于某个字段，返回值在本datatable中存在，而在其它datatable中不存在的记录组成的datatable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="table2"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static DataTable Except<T>(this DataTable table, DataTable table2, string name)
+        {
+            if (table == null) throw new ArgumentNullException("table");
+            DataColumnCollection columns = table.Columns;
+            if (!columns.Contains(name)) throw new ArgumentException("invalid field name");
+            if (table.Columns[name].DataType != typeof(T)) throw new ArgumentException("T");
+            if (!table2.Columns.Contains(name)) throw new ArgumentException("invalid field name");
+            DataTable _table = new DataTable(table.TableName);
+            for (int i = 0; i < table.Columns.Count; i++) {
+                _table.Columns.Add(table.Columns[i].ColumnName, table.Columns[i].DataType);
+            }
+
+            for (int i = 0; i < table.Rows.Count; i++) {
+                DataRow current = table.Rows[i];
+                if (!table2.Select<T>(name).Contains((T)current[name])) {
+                    DataRow newRow = _table.NewRow();
+                    for (int index = 0; index < table.Columns.Count; index++) {
+                        newRow[index] = table.Rows[i][index];
+                    }
+                    _table.Rows.Add(newRow);
+                }
+            }
+            return _table;
         }
 
     }
