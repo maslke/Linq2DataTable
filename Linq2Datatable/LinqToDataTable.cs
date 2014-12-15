@@ -423,5 +423,25 @@ namespace Linq2Datatable
             }
             return result;
         }
+
+        public static DataTable OrderBy<T>(this DataTable table, string name) where T:IComparable<T>{
+            if (table == null) throw new ArgumentException("table");
+            DataColumnCollection columns = table.Columns;
+            if (!columns.Contains(name)) throw new ArgumentException("invalid field name");
+            if (columns[name].DataType != typeof(T)) throw new ArgumentException("T");
+            QuickSort.Sort<T>(table, name, 0, table.Rows.Count-1);
+            return table;
+        }
+
+        public static DataTable OrderByDescending<T>(this DataTable table, string name) where T : IComparable<T>
+        {
+            if (table == null) throw new ArgumentException("table");
+            DataColumnCollection columns = table.Columns;
+            if (!columns.Contains(name)) throw new ArgumentException("invalid field name");
+            if (columns[name].DataType != typeof(T)) throw new ArgumentException("T");
+            QuickSort.Sort<T>(table, name, 0, table.Rows.Count - 1,true);
+            return table;
+        }
+
     }
 }
