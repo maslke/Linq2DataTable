@@ -199,6 +199,45 @@ namespace Linq2Datatable
             throw new Exception("Two or More Match");
         }
         /// <summary>
+        /// 解决诸如 field_a || field_b || field_c ='abc'这种问题
+        /// </summary>
+        /// <param name="table">DataTable</param>
+        /// <param name="predicate">Func委托</param>
+        /// <param name="names">参数数组</param>
+        /// <returns></returns>
+        public static DataRow Single(this DataTable table, Func<string, bool> predicate, params string[] names)
+        {
+            if (table == null) throw new ArgumentNullException("table");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            DataColumnCollection columns = table.Columns;
+            for (int i = 0; i < names.Length; i++) {
+                string name = names[i];
+                if (!columns.Contains(name)) throw new ArgumentException("invalid selector");
+                if (columns[name].DataType != typeof(string)) throw new ArgumentException("string");
+            }
+            DataRow result = null;
+            long count = 0;
+            for (int i = 0; i < table.Rows.Count; i++) {
+                DataRow current = table.Rows[i];
+                string value = string.Empty;
+                for (int index = 0; index < names.Length; index++) {
+                    if ((current[names[index]] as string) != null) {
+                        value += (string)current[names[index]];
+                    }
+                }
+                if (predicate(value)) {
+                    count++;
+                    result = current;
+                }
+            }
+            switch (count) {
+                case 0: throw new Exception("No Match");
+                case 1: return result;
+            }
+            throw new Exception("Two or More Match");
+        }
+
+        /// <summary>
         /// 获取DataTable中符合某个条件的唯一记录；记录不存在，返回null
         /// </summary>
         /// <param name="table">DataTable</param>
