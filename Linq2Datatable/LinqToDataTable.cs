@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 using System.Data;
 namespace Linq2Datatable
 {
+
+    /*
+     * 2015/2/18 19:01
+     */ 
+
     /// <summary>
     /// 给DataTable增加诸如Where、ForEach、All、Count、Sum等Linq操作
     /// </summary>
